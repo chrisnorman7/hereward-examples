@@ -1,0 +1,80 @@
+<!-- Next line tells the browser we are using HTML5 (the latest as of this writing. -->
+<!doctype html>
+<html lang="en"><!-- Set the language to English. -->
+<head><!-- the head section contains stuff about the web page that the browser needs to know like the title and metadata. -->
+<meta charset="UTF-8">
+<title>VAT Calculator</title>
+</head>
+<body><!-- User-facing stuff goes here. -->
+<h1>VAT Calculator</h1>
+<p id="intro">This paragraph's text will be set by the function setIntro below.</p>
+<!-- We use the aria-live attribute to ensure the screen readers read the result so the user won't have to go there and read it for themselves. It will not affect anybody else. -->
+<p aria-live="polite" id="result">Type in a number and click the submit button.</P>
+<!--
+The web form:
+Normal web forms have an action and a metho. The action is where the form is sent (login.html for example), and the metho is the method to use; usually post.
+Because we're going to override what happens when the form is submitted using JavaScript we don't need that.
+-->
+<form id="InputForm">
+<!--
+Being more of a Python person than a HTML one I used the blow Python code to generate the form field:
+
+from wtforms import Form, FloatField
+
+
+class InputForm(Form):
+    """A form with a signle field."""
+    cost = FloatField(description='The value to calculate VAT for')
+
+
+if __name__ == '__main__':
+    f = InputForm()
+    for field in f:
+        print(f'<p>{field.label} {field}</p>')
+
+-->
+<p><label for="cost">Cost</label> <input id="cost" name="cost" type="text" value=""></p>
+<p><input type="submit" value="Calculate VAT"></p>
+</form>
+<p>Written for Hereward College by <a href="https://github.com/chrisnorman7/">Chris Norman</a>.</p>
+<script><!-- Where the magic happens, folks! -->
+/*
+Always split your code up. Never write something twice because when you change
+it (like the VAT value below) it is twice as hard to update your code, and
+twice as error-prone.
+
+We're going to use the const keyword to set this value, although of course we
+could use var or let. The reason why I'll leave to you guys to figure out if
+you plan to learn more JavaScript.
+*/
+const percentage = 20
+
+function setIntro() {
+    // Let's use a JavaScript template because concatenating strings is so last century.
+    document.getElementById('intro').innerText = `VAT: ${percentage} per cent.`
+}
+
+// Let's set submit using an arrow function because they compile faster than
+// regular functions and they're more concise.
+document.getElementById("InputForm").onsubmit = (e) => {
+    e.preventDefault()
+    let field = document.getElementById("cost")
+    let value = field.value
+    if (isNaN(value)) {
+        alert("You must enter a number.")
+        field.value = ""
+        field.focus() // Move them back to the field.
+    } else {
+        value = new Number(value)
+        let tip = (value / 100) * percentage
+        value += tip
+        // This next line got from a google search which turned up https://stackoverflow.com/questions/3163070/javascript-displaying-a-float-to-2-decimal-places
+        value = value.toFixed(2)
+        document.getElementById("result").innerText = `Result: ${value}.`
+    }
+}
+
+setIntro()
+</script><!-- End of script. -->
+</body><!-- Close the body tag. -->
+</html><!-- End of the document. -->
